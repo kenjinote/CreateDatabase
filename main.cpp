@@ -15,6 +15,14 @@ TCHAR szClassName[] = TEXT("CreateDatabase");
 
 BOOL CreateDatabase(HWND hWnd, LPCTSTR lpszFilePath)
 {
+	if (PathFileExists(lpszFilePath))
+	{
+		if (!DeleteFile(lpszFilePath))
+		{
+			MessageBox(hWnd, TEXT("他のアプリケーションによって同名のファイルが開かれているため操作を完了できません。\n\nファイルを閉じてから再実行してください。"), TEXT("確認"), MB_RETRYCANCEL | MB_ICONWARNING);
+			return FALSE;
+		}
+	}
 	CoInitialize(NULL);
 	TCHAR szAttributes[1024];
 	wsprintf(szAttributes, TEXT("CREATE_DB=\"%s\" General\0"), lpszFilePath);
@@ -85,7 +93,7 @@ BOOL CreateTempDirectory(LPTSTR pszDir)
 	return TRUE;
 }
 
-BOOL CompactDatabase(HWND hWnd, LPCTSTR lpszMDBFilePath, LPCTSTR lpszPassword = 0)
+BOOL CompactDatabase(HWND hWnd, LPCTSTR lpszFilePath, LPCTSTR lpszPassword = 0)
 {
 	BOOL bRet = FALSE;
 	DAO::_DBEngine* pEngine = NULL;
@@ -93,21 +101,21 @@ BOOL CompactDatabase(HWND hWnd, LPCTSTR lpszMDBFilePath, LPCTSTR lpszPassword = 
 	if (SUCCEEDED(hr) && pEngine)
 	{
 		hr = -1;
-		TCHAR szTempDirectoryPath[MAX_PATH];
-		if (CreateTempDirectory(szTempDirectoryPath))
+		TCHAR szTempFilePath[MAX_PATH];
+		if (CreateTempDirectory(szTempFilePath))
 		{
-			PathAppend(szTempDirectoryPath, TEXT("TmpDatabase.mdb"));
+			PathAppend(szTempFilePath, TEXT("TmpDatabase.mdb"));
 			try
 			{
 				TCHAR szString[1024];
 				if (lpszPassword)
 				{
 					wsprintf(szString, TEXT(";pwd=%s"), lpszPassword);
-					pEngine->CompactDatabase((_bstr_t)lpszMDBFilePath, (_bstr_t)szTempDirectoryPath, vtMissing, vtMissing, szString);
+					pEngine->CompactDatabase((_bstr_t)lpszFilePath, (_bstr_t)szTempFilePath, vtMissing, vtMissing, szString);
 				}
 				else
 				{
-					pEngine->CompactDatabase((_bstr_t)lpszMDBFilePath, (_bstr_t)szTempDirectoryPath);
+					pEngine->CompactDatabase((_bstr_t)lpszFilePath, (_bstr_t)szTempFilePath);
 				}
 			}
 			catch (_com_error& e)
@@ -116,7 +124,7 @@ BOOL CompactDatabase(HWND hWnd, LPCTSTR lpszMDBFilePath, LPCTSTR lpszPassword = 
 			}
 			if (SUCCEEDED(hr))
 			{
-				if (MoveFileEx(szTempDirectoryPath, lpszMDBFilePath, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
+				if (MoveFileEx(szTempFilePath, lpszFilePath, MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
 				{
 					bRet = TRUE;
 				}
@@ -126,6 +134,24 @@ BOOL CompactDatabase(HWND hWnd, LPCTSTR lpszMDBFilePath, LPCTSTR lpszPassword = 
 		pEngine = NULL;
 	}
 	return bRet;
+}
+
+BOOL CompactDatabase2(HWND hWnd, LPCTSTR lpszFilePath)
+{
+	if (!PathFileExists(lpszFilePath))
+	{
+		return FALSE;
+	}
+	CoInitialize(NULL);
+	TCHAR szAttributes[1024];
+	wsprintf(szAttributes, TEXT("COMPACT_DB=\"%s\" \"%s\" General\0"), lpszFilePath, lpszFilePath);
+	if (!SQLConfigDataSource(hWnd, ODBC_ADD_DSN, TEXT("Microsoft Access Driver (*.mdb)"), szAttributes))
+	{
+		CoUninitialize();
+		return FALSE;
+	}
+	CoUninitialize();
+	return TRUE;
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
