@@ -19,7 +19,7 @@ BOOL CreateDatabase(HWND hWnd, LPCTSTR lpszFilePath)
 	{
 		if (!DeleteFile(lpszFilePath))
 		{
-			MessageBox(hWnd, TEXT("‘¼‚ÌƒAƒvƒŠƒP[ƒVƒ‡ƒ“‚É‚æ‚Á‚Ä“¯–¼‚Ìƒtƒ@ƒCƒ‹‚ªŠJ‚©‚ê‚Ä‚¢‚é‚½‚ß‘€ì‚ğŠ®—¹‚Å‚«‚Ü‚¹‚ñB\n\nƒtƒ@ƒCƒ‹‚ğ•Â‚¶‚Ä‚©‚çÄÀs‚µ‚Ä‚­‚¾‚³‚¢B"), TEXT("Šm”F"), MB_RETRYCANCEL | MB_ICONWARNING);
+			MessageBox(hWnd, TEXT("ä»–ã®ã‚¢ãƒ—ãƒªã‚±ãƒ¼ã‚·ãƒ§ãƒ³ã«ã‚ˆã£ã¦åŒåã®ãƒ•ã‚¡ã‚¤ãƒ«ãŒé–‹ã‹ã‚Œã¦ã„ã‚‹ãŸã‚æ“ä½œã‚’å®Œäº†ã§ãã¾ã›ã‚“ã€‚\n\nãƒ•ã‚¡ã‚¤ãƒ«ã‚’é–‰ã˜ã¦ã‹ã‚‰å†å®Ÿè¡Œã—ã¦ãã ã•ã„ã€‚"), TEXT("ç¢ºèª"), MB_RETRYCANCEL | MB_ICONWARNING);
 			return FALSE;
 		}
 	}
@@ -67,7 +67,7 @@ BOOL SQLExecute(HWND hWnd, LPCTSTR lpszMDBFilePath, LPCTSTR lpszSQL)
 	}
 	pCon->Close();
 	pCon = NULL;
-	return TRUE;
+	return bRet;
 }
 
 BOOL CreateGUID(TCHAR *szGUID)
@@ -160,7 +160,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_CREATE:
-		CreateWindow(TEXT("BUTTON"), TEXT("ƒf[ƒ^ƒx[ƒX‚ğì¬‚·‚é"), WS_VISIBLE | WS_CHILD, 10, 10, 256, 32, hWnd, (HMENU)100, ((LPCREATESTRUCT)lParam)->hInstance, 0);
+		CreateWindow(TEXT("BUTTON"), TEXT("ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ã‚’ä½œæˆã™ã‚‹"), WS_VISIBLE | WS_CHILD, 10, 10, 256, 32, hWnd, (HMENU)100, ((LPCREATESTRUCT)lParam)->hInstance, 0);
 		break;
 	case WM_COMMAND:
 		if (LOWORD(wParam) == 100)
@@ -178,9 +178,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			{
 				if (CreateDatabase(hWnd, szFileName))
 				{
-					SQLExecute(hWnd, szFileName, TEXT("CREATE TABLE –¼•ë(–¼‘O VARCHAR (255), “Á‹Z VARCHAR (255));"));
-					SQLExecute(hWnd, szFileName, TEXT("INSERT INTO –¼•ë(–¼‘O,“Á‹Z)VALUES('R“c‘¾˜Y','ƒXƒCƒJŠ„‚è');"));
-					SQLExecute(hWnd, szFileName, TEXT("INSERT INTO –¼•ë(–¼‘O,“Á‹Z)VALUES('R“c‰Ôq','‘ŒûŒ¾—t');"));
+					SQLExecute(hWnd, szFileName, TEXT("CREATE TABLE åç°¿(åå‰ VARCHAR (255), ç‰¹æŠ€ VARCHAR (255));"));
+					SQLExecute(hWnd, szFileName, TEXT("INSERT INTO åç°¿(åå‰,ç‰¹æŠ€)VALUES('å±±ç”°å¤ªéƒ','ã‚¹ã‚¤ã‚«å‰²ã‚Š');"));
+					SQLExecute(hWnd, szFileName, TEXT("INSERT INTO åç°¿(åå‰,ç‰¹æŠ€)VALUES('å±±ç”°èŠ±å­','æ—©å£è¨€è‘‰');"));
 					CompactDatabase(hWnd, szFileName);
 				}
 			}
@@ -214,7 +214,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPreInst, LPSTR pCmdLine, int 
 	RegisterClass(&wndclass);
 	HWND hWnd = CreateWindow(
 		szClassName,
-		TEXT("Access ƒf[ƒ^ƒx[ƒXƒtƒ@ƒCƒ‹‚ğì¬‚·‚é"),
+		TEXT("Access ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä½œæˆã™ã‚‹"),
 		WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT,
 		0,
